@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Watermark + Blur Tool (локально) — JPG</title>
+  <style>
+    :root{
+      --panel:#11131a;
+      --panel2:#0f1117;
+      --text:#e8eaf0;
+      --muted:#a8b0c0;
+      --border:rgba(255,255,255,.10);
+      --border2:rgba(255,255,255,.16);
+      --danger:#ff6a6a;
+      --ok:#57d48b;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg, #0b0c10 0%, #07080b 100%);
+      color:var(--text);
+      overflow:hidden;
+    }
+    .app{ height:100%; display:flex; gap:12px; padding:12px; }
+    .left{
+      width:380px; min-width:320px; max-width:460px;
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      overflow:auto;
+    }
+    .right{
+      flex:1;
+      background:linear-gradient(180deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.01) 100%);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+    }
+    h1{ font-size:16px; margin:0 0 12px 0; letter-spacing:.2px; }
+    .hint{ font-size:12px; color:var(--muted); margin:6px 0 12px; line-height:1.35; }
+    .section{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:12px;
+      background:rgba(255,255,255,.02);
+    }
+    .section h2{ font-size:13px; margin:0 0 10px; color:#d9def0; font-weight:650; }
+    .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0; }
+    label{ font-size:12px; color:var(--muted); min-width:130px; }
+    input[type="file"]{ width:100%; color:var(--muted); }
+    input[type="range"]{ width:100%; }
+    .value{
+      min-width:62px; text-align:right; font-variant-numeric:tabular-nums;
+      color:#dfe5ff; font-size:12px;
+    }
+    .btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    button{
+      appearance:none;
+      border:1px solid var(--border2);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 10px;
+      font-size:12px;
+      cursor:pointer;
+      transition:transform .03s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    button:hover{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.22); }
+    button:active{ transform:translateY(1px); }
+    button.primary{
+      border-color:rgba(106,166,255,.55);
+      background:rgba(106,166,255,.12);
+    }
+    button.danger{
+      border-color:rgba(255,106,106,.55);
+      background:rgba(255,106,106,.10);
+    }
+    button.ok{
+      border-color:rgba(87,212,139,.55);
+      background:rgba(87,212,139,.10);
+    }
+    button:disabled{ opacity:.45; cursor:not-allowed; }
+    .chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .chip{
+      font-size:11px; color:#e9eeff;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      padding:6px 8px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .chip b{ font-weight:650; color:#fff; }
+    .chip .x{
+      border:none; background:transparent; color:var(--danger);
+      font-size:14px; line-height:1; padding:0 2px; cursor:pointer;
+    }
+    .canvasWrap{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; position:relative; }
+    canvas{
+      max-width:100%;
+      max-height:calc(100vh - 26px);
+      width:auto; height:auto;
+      border-radius:12px;
+      background:rgba(0,0,0,.25);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    .overlayBadge{
+      position:absolute;
+      top:10px; right:10px;
+      font-size:12px;
+      color:#e9eeff;
+      background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+      padding:6px 10px;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      pointer-events:none;
+    }
+    .status{ margin-top:8px; font-size:12px; color:var(--muted); line-height:1.35; }
+    .status .ok{ color:var(--ok); }
+    .status .bad{ color:var(--danger); }
+    .small{ font-size:11px; color:var(--muted); margin-top:6px; line-height:1.35; }
+    .kbd{
+      display:inline-block;
+      padding:2px 6px;
+      border:1px solid rgba(255,255,255,.18);
+      border-bottom-color: rgba(255,255,255,.28);
+      border-radius:6px;
+      font-size:11px;
+      color:#e9eeff;
+      background:rgba(255,255,255,.04);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="left">
+      <h1>Водяной знак Тактик</h1>
+      <div class="hint">
+        Сервис добавляет на выбранную картинку картинку водянного знака
+      </div>
+
+      <div class="section">
+        <h2>Файлы</h2>
+
+        <div class="btns">
+          <button id="openBtn" class="primary">Открыть исходную картинку…</button>
+          <button id="openWmBtn">Открыть водяной знак…</button>
+        </div>
+
+        <!-- скрытые input'ы (не “интерфейс выбора”, только тех. механизм) -->
+        <input id="fileInput" type="file" accept="image/*" style="display:none" />
+        <input id="wmFileInput" type="file" accept="image/*" style="display:none" />
+
+        <div class="status" id="loadStatus">Файлы не выбраны.</div>
+      </div>
+
+      <div class="section">
+        <h2>Водяной знак</h2>
+
+        <div class="row">
+          <label for="wmScale">Масштаб (0–100%)</label>
+          <div style="flex:1; display:flex; gap:10px; align-items:center;">
+            <input id="wmScale" type="range" min="0" max="100" value="50" />
+            <div class="value" id="wmScaleVal">50%</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="wmOpacity">Прозрачность (0–100%)</label>
+          <div style="flex:1; display:flex; gap:10px; align-items:center;">
+            <input id="wmOpacity" type="range" min="0" max="100" value="30" />
+            <div class="value" id="wmOpacityVal">30%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Размытие (замыливание)</h2>
+
+        <div class="row">
+          <label for="blurIntensity">Интенсивность</label>
+          <div style="flex:1; display:flex; gap:10px; align-items:center;">
+            <input id="blurIntensity" type="range" min="3" max="15" value="6" />
+            <div class="value" id="blurIntensityVal">6px</div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="blurModeBtn" class="primary" disabled>Режим выделения: ВЫКЛ</button>
+          <button id="clearBlursBtn" class="danger" disabled>Очистить области</button>
+        </div>
+
+        <div class="small">
+          Включи режим, затем мышью выделяй прямоугольники на картинке (можно несколько).
+        </div>
+
+        <div class="chips" id="blurChips"></div>
+      </div>
+
+      <div class="section">
+        <h2>Сохранение</h2>
+        <div class="btns">
+          <button id="saveBtn" class="ok" disabled>Сохранить JPG</button>
+          <button id="resetBtn" disabled>Сбросить</button>
+        </div>
+        <div class="small">
+          Сохранение в JPG: качество <b>85%</b>, в исходном размере.
+        </div>
+      </div>
+    </aside>
+
+    <main class="right">
+      <div class="canvasWrap">
+        <canvas id="previewCanvas"></canvas>
+        <div class="overlayBadge" id="modeBadge" style="display:none;">Выделение размытия</div>
+      </div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // ====== Параметры по ТЗ (дефолтно в коде) ======
+  const WM_ANGLE_DEG = 45;     // угол 45°
+  const WM_STEP_PX   = -20;    // шаг -70px
+  const WM_OFFSET_PX = -50;    // смещение старта -50px
+
+  // Сохранение: только JPG, качество 85%
+  const JPG_QUALITY = 0.85;
+
+  // ====== DOM ======
+  const openBtn = document.getElementById('openBtn');
+  const openWmBtn = document.getElementById('openWmBtn');
+
+  const fileInput = document.getElementById('fileInput');
+  const wmFileInput = document.getElementById('wmFileInput');
+  const loadStatus = document.getElementById('loadStatus');
+
+  const wmScale = document.getElementById('wmScale');
+  const wmScaleVal = document.getElementById('wmScaleVal');
+
+  const wmOpacity = document.getElementById('wmOpacity');
+  const wmOpacityVal = document.getElementById('wmOpacityVal');
+
+  const blurIntensity = document.getElementById('blurIntensity');
+  const blurIntensityVal = document.getElementById('blurIntensityVal');
+
+  const blurModeBtn = document.getElementById('blurModeBtn');
+  const clearBlursBtn = document.getElementById('clearBlursBtn');
+  const blurChips = document.getElementById('blurChips');
+
+  const saveBtn = document.getElementById('saveBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const canvas = document.getElementById('previewCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const modeBadge = document.getElementById('modeBadge');
+
+  // ====== State ======
+  let srcImg = null;
+  let watermarkImg = null;
+
+  let blurMode = false;
+  let blurRegions = [];
+
+  let isDragging = false;
+  let dragStart = {x:0,y:0};
+  let dragCurrent = {x:0,y:0};
+
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+  function setStatus(html){
+    loadStatus.innerHTML = html;
+  }
+
+  function updateLabels(){
+    wmScaleVal.textContent = `${wmScale.value}%`;
+    wmOpacityVal.textContent = `${wmOpacity.value}%`;
+    blurIntensityVal.textContent = `${blurIntensity.value}px`;
+  }
+
+  function enableControls(enabled){
+    blurModeBtn.disabled = !enabled;
+    clearBlursBtn.disabled = !enabled;
+    saveBtn.disabled = !enabled;
+    resetBtn.disabled = !enabled;
+  }
+
+  function canvasPointFromEvent(ev){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (ev.clientX - rect.left) * scaleX,
+      y: (ev.clientY - rect.top)  * scaleY
+    };
+  }
+
+  function normalizedRect(a, b){
+    const x = Math.min(a.x, b.x);
+    const y = Math.min(a.y, b.y);
+    const w = Math.abs(b.x - a.x);
+    const h = Math.abs(b.y - a.y);
+    return {x,y,w,h};
+  }
+
+  function setBlurMode(on){
+    blurMode = on;
+    blurModeBtn.textContent = `Режим выделения: ${blurMode ? 'ВКЛ' : 'ВЫКЛ'}`;
+    modeBadge.style.display = blurMode ? 'block' : 'none';
+    canvas.style.cursor = blurMode ? 'crosshair' : 'default';
+  }
+
+  function refreshBlurChips(){
+    blurChips.innerHTML = '';
+    if(!blurRegions.length) return;
+
+    blurRegions.forEach((r, idx) => {
+      const el = document.createElement('div');
+      el.className = 'chip';
+      const w = Math.round(r.w), h = Math.round(r.h);
+      const x = Math.round(r.x), y = Math.round(r.y);
+      el.innerHTML = `<b>#${idx+1}</b> x:${x} y:${y} w:${w} h:${h} <button class="x" title="Удалить">×</button>`;
+      el.querySelector('.x').addEventListener('click', () => {
+        blurRegions.splice(idx, 1);
+        refreshBlurChips();
+        renderPreview();
+      });
+      blurChips.appendChild(el);
+    });
+  }
+
+  async function loadImageFromFile(file){
+    const url = URL.createObjectURL(file);
+    try{
+      const img = await new Promise((resolve, reject) => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.onerror = reject;
+        i.src = url;
+      });
+      return img;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  function setCanvasToImage(img){
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+  }
+
+  // ====== Rendering ======
+  function renderPreview(){
+    if(!srcImg){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      return;
+    }
+    const out = renderToOffscreen();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(out, 0, 0);
+
+    drawRegionsOutlines();
+    drawSelectionOverlay();
+  }
+
+  function drawRegionsOutlines(){
+    if(!blurRegions.length) return;
+    ctx.save();
+    ctx.lineWidth = Math.max(1, Math.round(Math.min(canvas.width, canvas.height) * 0.002));
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    blurRegions.forEach(r => ctx.strokeRect(r.x, r.y, r.w, r.h));
+    ctx.restore();
+  }
+
+  function drawSelectionOverlay(){
+    if(!isDragging) return;
+    const r = normalizedRect(dragStart, dragCurrent);
+    ctx.save();
+    ctx.lineWidth = Math.max(2, Math.round(Math.min(canvas.width, canvas.height) * 0.003));
+    ctx.setLineDash([8,6]);
+    ctx.strokeStyle = 'rgba(106,166,255,0.95)';
+    ctx.fillStyle = 'rgba(106,166,255,0.12)';
+    ctx.strokeRect(r.x, r.y, r.w, r.h);
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.restore();
+  }
+
+function renderToOffscreen(){
+  // out = итоговый кадр
+  const out = document.createElement('canvas');
+  out.width = canvas.width;
+  out.height = canvas.height;
+  const octx = out.getContext('2d');
+
+  // base = чистый исходник (без водяного знака)
+  const base = document.createElement('canvas');
+  base.width = canvas.width;
+  base.height = canvas.height;
+  const bctx = base.getContext('2d');
+  bctx.drawImage(srcImg, 0, 0, base.width, base.height);
+
+  // 1) сначала рисуем исходник
+  octx.drawImage(base, 0, 0);
+
+  // 2) затем размываем выбранные области (только по исходнику)
+  const blurPx = Number(blurIntensity.value) || 0;
+  if(blurPx > 0 && blurRegions.length){
+    blurRegions.forEach(r0 => {
+      const r = {
+        x: clamp(r0.x, 0, out.width),
+        y: clamp(r0.y, 0, out.height),
+        w: clamp(r0.w, 0, out.width),
+        h: clamp(r0.h, 0, out.height),
+      };
+      if(r.w < 2 || r.h < 2) return;
+
+      octx.save();
+      octx.beginPath();
+      octx.rect(r.x, r.y, r.w, r.h);
+      octx.clip();
+      octx.filter = `blur(${blurPx}px)`;
+      // перерисовываем исходник с blur, но только в clip-области
+      octx.drawImage(base, 0, 0);
+      octx.filter = 'none';
+      octx.restore();
+    });
+  }
+
+  // 3) и в самом конце — водяной знак поверх всего
+  if(watermarkImg && watermarkImg.complete && watermarkImg.naturalWidth){
+    drawWatermarkTiled(octx, out.width, out.height);
+  }
+
+  return out;
+}
+
+
+  function drawWatermarkTiled(targetCtx, W, H){
+    const scalePct = Number(wmScale.value) / 100;
+    const alphaPct = Number(wmOpacity.value) / 100;
+    if(scalePct <= 0 || alphaPct <= 0) return;
+
+    const wmW0 = watermarkImg.naturalWidth;
+    const wmH0 = watermarkImg.naturalHeight;
+
+    const wmW = wmW0 * scalePct;
+    const wmH = wmH0 * scalePct;
+    if(wmW < 1 || wmH < 1) return;
+
+    const angle = WM_ANGLE_DEG * Math.PI / 180;
+
+    const stepX = Math.max(10, wmW + WM_STEP_PX);
+    const stepY = Math.max(10, wmH + WM_STEP_PX);
+
+    targetCtx.save();
+    targetCtx.globalAlpha = alphaPct;
+
+    targetCtx.translate(W/2, H/2);
+    targetCtx.rotate(angle);
+
+    const startX = -W/2 + WM_OFFSET_PX;
+    const startY = -H/2 + WM_OFFSET_PX;
+    const endX =  W/2 - WM_OFFSET_PX;
+    const endY =  H/2 - WM_OFFSET_PX;
+
+    const pad = Math.max(wmW, wmH) * 2;
+    for(let y = startY - pad; y <= endY + pad; y += stepY){
+      for(let x = startX - pad; x <= endX + pad; x += stepX){
+        targetCtx.drawImage(watermarkImg, x, y, wmW, wmH);
+      }
+    }
+
+    targetCtx.restore();
+  }
+
+  // ====== Save (JPG only, original size, quality 85%) ======
+  function downloadJPG(){
+    if(!srcImg) return;
+
+    const out = renderToOffscreen();
+
+    out.toBlob((blob) => {
+      if(!blob) return;
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = 'edited.jpg';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', JPG_QUALITY);
+  }
+
+  // ====== Events ======
+  openBtn.addEventListener('click', () => fileInput.click());
+  openWmBtn.addEventListener('click', () => wmFileInput.click());
+
+  // Горячая клавиша: Ctrl/Cmd + O
+  window.addEventListener('keydown', (e) => {
+    const isMac = navigator.platform.toLowerCase().includes('mac');
+    const mod = isMac ? e.metaKey : e.ctrlKey;
+    if(mod && (e.key === 'o' || e.key === 'O')){
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener('change', async () => {
+    const f = fileInput.files && fileInput.files[0];
+    if(!f) return;
+
+    setStatus(`Загружаю исходник <b>${f.name}</b>…`);
+    try{
+      srcImg = await loadImageFromFile(f);
+      setCanvasToImage(srcImg);
+
+      blurRegions = [];
+      refreshBlurChips();
+      setBlurMode(false);
+
+      enableControls(true);
+      setStatus(`<span class="ok">OK</span>: исходник загружен. ${watermarkImg ? 'Водяной знак: <span class="ok">есть</span>.' : 'Водяной знак: <span class="bad">не выбран</span>.'}`);
+
+      renderPreview();
+    }catch{
+      setStatus(`<span class="bad">Ошибка</span>: не удалось загрузить исходник.`);
+      srcImg = null;
+      enableControls(false);
+      renderPreview();
+    } finally {
+      // Чтобы можно было выбрать тот же файл повторно
+      fileInput.value = '';
+    }
+  });
+
+  wmFileInput.addEventListener('change', async () => {
+    const f = wmFileInput.files && wmFileInput.files[0];
+    if(!f){
+      watermarkImg = null;
+      if(srcImg) renderPreview();
+      setStatus(`${srcImg ? '<span class="ok">OK</span>: ' : ''}водяной знак сброшен. ${srcImg ? 'Можно сохранять без него.' : 'Теперь открой исходник.'}`);
+      return;
+    }
+    setStatus(`Загружаю водяной знак <b>${f.name}</b>…`);
+    try{
+      watermarkImg = await loadImageFromFile(f);
+      setStatus(`${srcImg ? '<span class="ok">OK</span>: ' : ''}водяной знак загружен. ${srcImg ? 'Можно сохранять.' : 'Теперь открой исходник.'}`);
+      if(srcImg) renderPreview();
+    }catch{
+      watermarkImg = null;
+      setStatus(`<span class="bad">Ошибка</span>: не удалось загрузить водяной знак.`);
+      if(srcImg) renderPreview();
+    } finally {
+      wmFileInput.value = '';
+    }
+  });
+
+  [wmScale, wmOpacity, blurIntensity].forEach(el => {
+    el.addEventListener('input', () => {
+      updateLabels();
+      if(srcImg) renderPreview();
+    });
+  });
+
+  blurModeBtn.addEventListener('click', () => {
+    if(!srcImg) return;
+    setBlurMode(!blurMode);
+    renderPreview();
+  });
+
+  clearBlursBtn.addEventListener('click', () => {
+    if(!srcImg) return;
+    blurRegions = [];
+    refreshBlurChips();
+    renderPreview();
+  });
+
+  saveBtn.addEventListener('click', downloadJPG);
+
+  resetBtn.addEventListener('click', () => {
+    if(!srcImg) return;
+
+    wmScale.value = 30;
+    wmOpacity.value = 25;
+    blurIntensity.value = 12;
+
+    blurRegions = [];
+    refreshBlurChips();
+    setBlurMode(false);
+
+    updateLabels();
+    renderPreview();
+  });
+
+  // выделение областей
+  canvas.addEventListener('mousedown', (ev) => {
+    if(!srcImg || !blurMode) return;
+    isDragging = true;
+    dragStart = canvasPointFromEvent(ev);
+    dragCurrent = {...dragStart};
+    renderPreview();
+  });
+
+  window.addEventListener('mousemove', (ev) => {
+    if(!isDragging) return;
+    dragCurrent = canvasPointFromEvent(ev);
+    renderPreview();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if(!isDragging) return;
+    isDragging = false;
+
+    const r = normalizedRect(dragStart, dragCurrent);
+    if(r.w >= 6 && r.h >= 6){
+      blurRegions.push({
+        x: clamp(r.x, 0, canvas.width),
+        y: clamp(r.y, 0, canvas.height),
+        w: clamp(r.w, 0, canvas.width),
+        h: clamp(r.h, 0, canvas.height),
+      });
+      refreshBlurChips();
+    }
+
+    renderPreview();
+  });
+
+  // init
+  updateLabels();
+  enableControls(false);
+  setBlurMode(false);
+})();
+</script>
+</body>
+</html>
