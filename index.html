@@ -216,7 +216,17 @@
             <div class="value" id="wmOpacityVal">30%</div>
           </div>
         </div>
+		
+		<div class="row">
+		  <label for="wmStep">Шаг (px)</label>
+		  <div style="flex:1; display:flex; gap:10px; align-items:center;">
+			<input id="wmStep" type="range" min="-100" max="200" step="1" value="-20" />
+			<div class="value" id="wmStepVal">-20px</div>
+		  </div>
+		</div>
+		
       </div>
+
 
       <div class="section">
         <h2>Размытие (замыливание)</h2>
@@ -265,7 +275,6 @@
 (() => {
   // ====== Параметры по ТЗ (дефолтно в коде) ======
   const WM_ANGLE_DEG = 45;     // угол 45°
-  const WM_STEP_PX   = -20;    // шаг -70px
   const WM_OFFSET_PX = -50;    // смещение старта -50px
 
   // Сохранение: только JPG, качество 85%
@@ -281,6 +290,9 @@
 
   const wmScale = document.getElementById('wmScale');
   const wmScaleVal = document.getElementById('wmScaleVal');
+  
+  const wmStep = document.getElementById('wmStep');
+  const wmStepVal = document.getElementById('wmStepVal');
 
   const wmOpacity = document.getElementById('wmOpacity');
   const wmOpacityVal = document.getElementById('wmOpacityVal');
@@ -320,7 +332,9 @@
   function updateLabels(){
     wmScaleVal.textContent = `${wmScale.value}%`;
     wmOpacityVal.textContent = `${wmOpacity.value}%`;
+	wmStepVal.textContent = `${wmStep.value}px`;
     blurIntensityVal.textContent = `${blurIntensity.value}px`;
+
   }
 
   function enableControls(enabled){
@@ -494,8 +508,9 @@ function renderToOffscreen(){
 
     const angle = WM_ANGLE_DEG * Math.PI / 180;
 
-    const stepX = Math.max(10, wmW + WM_STEP_PX);
-    const stepY = Math.max(10, wmH + WM_STEP_PX);
+	const stepPx = Number(wmStep.value);
+	const stepX = Math.max(10, wmW + stepPx);
+	const stepY = Math.max(10, wmH + stepPx);
 
     targetCtx.save();
     targetCtx.globalAlpha = alphaPct;
@@ -601,7 +616,7 @@ function renderToOffscreen(){
     }
   });
 
-  [wmScale, wmOpacity, blurIntensity].forEach(el => {
+  [wmScale, wmOpacity, wmStep, blurIntensity].forEach(el => {
     el.addEventListener('input', () => {
       updateLabels();
       if(srcImg) renderPreview();
@@ -628,6 +643,7 @@ function renderToOffscreen(){
 
     wmScale.value = 30;
     wmOpacity.value = 25;
+	wmStep.value = -20;
     blurIntensity.value = 12;
 
     blurRegions = [];
