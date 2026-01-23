@@ -1,0 +1,136 @@
+/* =========================
+   HDRX — уникальная шапка
+   ========================= */
+
+.hdrx-header{ margin:12px 0 12px 0; }
+
+.hdrx-inner{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+
+  padding:14px 16px;
+
+  --hdrx-panel1:#11131a;
+  --hdrx-panel2:#0f1117;
+  --hdrx-text:#e8eaf0;
+  --hdrx-border:rgba(255,255,255,.10);
+  --hdrx-border2:rgba(255,255,255,.16);
+  --hdrx-shadow:0 10px 30px rgba(0,0,0,.35);
+
+  background:linear-gradient(180deg, var(--hdrx-panel1) 0%, var(--hdrx-panel2) 100%);
+  border:1px solid var(--hdrx-border);
+  border-radius:14px;
+  box-shadow:var(--hdrx-shadow);
+}
+
+.hdrx-title{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  font-size:14px;
+  font-weight:650;
+  letter-spacing:.2px;
+  color:#fff;
+  white-space:nowrap;
+}
+
+.hdrx-nav{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.hdrx-btn{
+  position:relative;
+  z-index:1;
+
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+
+  padding:8px 12px;
+  border-radius:6px;
+
+  text-decoration:none;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  font-size:12px;
+  font-weight:600;
+  color:var(--hdrx-text);
+
+  border:1px solid var(--hdrx-border2);
+  background:rgba(255,255,255,.04);
+
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    transform .06s ease,
+    box-shadow .18s ease;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* hover glow */
+.hdrx-btn:hover{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.25);
+  box-shadow:0 0 0 2px rgba(106,166,255,.10), 0 10px 24px rgba(0,0,0,.18);
+}
+
+.hdrx-btn:active{ transform:translateY(1px); }
+
+.hdrx-ico{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:14px;
+  line-height:1;
+
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;
+}
+
+/* Активное состояние (для текста/бордера) */
+.hdrx-btn.hdrx-active{
+  color:#eaf0ff;
+  border-color:rgba(106,166,255,.55);
+}
+
+/* Индикатор (анимируемая «подложка» под активной кнопкой) */
+.hdrx-indicator{
+  position:absolute;
+  z-index:0;
+  left:0;
+  top:0;
+  width:0;
+  height:0;
+
+  border-radius:6px;
+  background:rgba(106,166,255,.14);
+  border:1px solid rgba(106,166,255,.55);
+
+  box-shadow:0 0 0 2px rgba(106,166,255,.10);
+  transition:
+    transform .22s ease,
+    width .22s ease,
+    height .22s ease;
+  pointer-events:none;
+}
+
+/* фокус с клавиатуры */
+.hdrx-btn:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 2px rgba(106,166,255,.18), 0 10px 24px rgba(0,0,0,.18);
+  border-color:rgba(106,166,255,.55);
+}
+
+@media (max-width: 720px){
+  .hdrx-nav{ width:100%; }
+  .hdrx-btn{ flex:1; justify-content:center; }
+  .hdrx-indicator{ display:none; } /* на мобиле проще без индикатора */
+}

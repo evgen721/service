@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор сотрудников</title>
+    <style>
+:root{
+  --panel:#11131a;
+  --panel2:#0f1117;
+  --text:#e8eaf0;
+  --muted:#a8b0c0;
+  --border:rgba(255,255,255,.10);
+  --border2:rgba(255,255,255,.16);
+  --danger:#ff6a6a;
+  --ok:#57d48b;
+  --primary:#6aa6ff;
+  --primary2:rgba(106,166,255,.12);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg, #0b0c10 0%, #07080b 100%);
+  color:var(--text);
+  line-height:1.55;
+}
+
+.container{
+  max-width:1200px;
+  margin:0 auto;
+}
+
+h1{
+  font-size:16px;
+  margin:0 0 6px 0;
+  letter-spacing:.2px;
+}
+.subtitle{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Layout */
+.file-controls{
+  display:flex;
+  gap:10px;
+  margin:12px 0;
+  flex-wrap:wrap;
+}
+
+.main-content{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* Panels */
+.employees-list,
+.employee-form-container,
+.json-output-container{
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+.employees-list{ flex:1; min-width:300px; }
+.employee-form-container{ flex:2; min-width:380px; }
+
+/* Section titles */
+.employees-list h2,
+.employee-form-container h2,
+.json-output-container h2,
+.documents-section h3{
+  font-size:13px;
+  margin:0 0 10px;
+  color:#d9def0;
+  font-weight:650;
+}
+
+/* Cards */
+.employee-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:transform .03s ease, background .15s ease, border-color .15s ease;
+}
+.employee-card:hover{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.22);
+  transform:translateY(1px);
+}
+.employee-card.active{
+  background:rgba(106,166,255,.10);
+  border-color:rgba(106,166,255,.45);
+}
+.employee-name{
+  font-weight:650;
+  font-size:13px;
+  margin-bottom:2px;
+  color:#fff;
+}
+.employee-position{
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* Forms */
+.form-group{ margin-bottom:12px; }
+label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:600;
+  color:var(--muted);
+  font-size:12px;
+}
+input, textarea, select{
+  width:100%;
+  padding:10px 10px;
+  border:1px solid var(--border2);
+  border-radius:12px;
+  font-size:12px;
+  color:var(--text);
+  background:rgba(255,255,255,.04);
+  transition:background .15s ease, border-color .15s ease, transform .03s ease;
+}
+input::placeholder, textarea::placeholder{ color:rgba(168,176,192,.75); }
+input:focus, textarea:focus, select:focus{
+  border-color:rgba(106,166,255,.55);
+  outline:none;
+  box-shadow:0 0 0 2px rgba(106,166,255,.18);
+  background:rgba(255,255,255,.06);
+}
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+/* Documents */
+.documents-section{
+  margin-top:16px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+.document-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  padding:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+.document-item input{ flex:1; }
+
+/* Buttons (unified) */
+.btn,
+.file-input-btn,
+.add-document-btn,
+.remove-document,
+.copy-btn,
+.download-btn{
+  appearance:none;
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  border-radius:12px;
+  padding:10px 10px;
+  font-size:12px;
+  cursor:pointer;
+  transition:transform .03s ease, background .15s ease, border-color .15s ease;
+  user-select:none;
+}
+.btn:hover,
+.file-input-btn:hover,
+.add-document-btn:hover,
+.copy-btn:hover,
+.download-btn:hover{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.22);
+}
+.btn:active,
+.file-input-btn:active,
+.add-document-btn:active,
+.copy-btn:active,
+.download-btn:active{
+  transform:translateY(1px);
+}
+
+/* Variants */
+.btn-primary{
+  border-color:rgba(106,166,255,.55);
+  background:rgba(106,166,255,.12);
+}
+.btn-primary:hover{ background:rgba(106,166,255,.16); }
+
+.btn-secondary{
+  border-color:rgba(255,255,255,.18);
+}
+.btn-danger{
+  border-color:rgba(255,106,106,.55);
+  background:rgba(255,106,106,.10);
+}
+.btn-success{
+  border-color:rgba(87,212,139,.55);
+  background:rgba(87,212,139,.10);
+}
+
+.file-input-wrapper{
+  position:relative;
+  overflow:hidden;
+  display:inline-block;
+  flex:1;
+  min-width:220px;
+}
+.file-input-wrapper input[type=file]{
+  position:absolute;
+  left:0; top:0;
+  opacity:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+}
+
+/* “Даш” кнопка: визуально как chip */
+.add-document-btn{
+  background:transparent;
+  border:1px dashed rgba(106,166,255,.45);
+  color:#dfe5ff;
+  padding:8px 10px;
+  border-radius:999px;
+}
+.add-document-btn:hover{
+  background:rgba(106,166,255,.10);
+  border-color:rgba(106,166,255,.65);
+}
+
+.remove-document{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-color:rgba(255,106,106,.45);
+  background:rgba(255,106,106,.08);
+}
+
+/* Action row */
+.action-buttons{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+/* Empty state */
+.empty-state{
+  text-align:center;
+  padding:26px 14px;
+  color:var(--muted);
+  border:1px dashed rgba(255,255,255,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.02);
+}
+.empty-state i{
+  font-size:2rem;
+  margin-bottom:10px;
+  display:block;
+  opacity:.9;
+}
+
+/* JSON output */
+.json-output-container{
+  margin-top:12px;
+}
+.json-output{
+  margin-top:10px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.14);
+  color:#e9eeff;
+  padding:12px;
+  border-radius:12px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  white-space:pre-wrap;
+  max-height:320px;
+  overflow:auto;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* Positioning of bottom-right buttons (keep your layout intention but in dark style) */
+.copy-btn,
+.download-btn{
+  padding:8px 10px;
+  border-radius:999px;
+  float:right;
+  margin-top:10px;
+  margin-left:8px;
+}
+
+/* Mobile */
+@media (max-width: 820px){
+  body{ padding:10px; }
+  header{ text-align:left; }
+  .main-content{ flex-direction:column; }
+  .employee-form-container, .employees-list{ min-width:100%; }
+  .file-controls{ flex-direction:column; }
+}
+
+
+
+</style>
+
+<link rel="stylesheet" href="header.css">	
+
+</head>
+<body>
+
+<!-- header -->	
+<div id="hdrx-mount"></div>
+<!-- header -->	
+
+    <div class="container">
+        <header>
+            <h1>Конструктор сотрудников</h1>
+            <p class="subtitle">Редактируйте, добавляйте и удаляйте записи сотрудников</p>
+        </header>
+        
+        <div class="file-controls">
+            <div class="file-input-wrapper">
+                <div class="file-input-btn">📁 Загрузить JSON файл</div>
+                <input type="file" id="jsonFileInput" accept=".json">
+            </div>
+            <button id="downloadJsonBtn" class="btn btn-success">💾 Скачать JSON</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="employees-list">
+                <h2>Список сотрудников</h2>
+                <div id="employeesContainer">
+                    <!-- Список сотрудников будет загружен сюда -->
+                </div>
+                <button id="addEmployeeBtn" class="btn btn-success" style="width: 100%; margin-top: 15px;">
+                    + Добавить нового сотрудника
+                </button>
+            </div>
+            
+            <div class="employee-form-container">
+                <h2 id="formTitle">Редактирование сотрудника</h2>
+                <form id="employeeForm">
+                    <div class="form-group">
+                        <label for="employeeId">ID сотрудника:</label>
+                        <input type="text" id="employeeId" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeeName">ФИО:</label>
+                        <input type="text" id="employeeName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeePosition">Должность:</label>
+                        <input type="text" id="employeePosition" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeePhoto">Фото (URL):</label>
+                        <input type="text" id="employeePhoto">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeeEducation">Образование:</label>
+                        <input type="text" id="employeeEducation">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeeExperience">Опыт работы:</label>
+                        <input type="text" id="employeeExperience">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employeeDescription">Описание:</label>
+                        <textarea id="employeeDescription"></textarea>
+                    </div>
+                    
+                    <div class="documents-section">
+                        <h3>Документы</h3>
+                        <div id="documentsContainer">
+                            <!-- Документы будут загружены сюда -->
+                        </div>
+                        <button type="button" id="addDocumentBtn" class="add-document-btn">
+                            + Добавить документ
+                        </button>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        <button type="button" id="deleteEmployeeBtn" class="btn btn-danger">Удалить сотрудника</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="json-output-container">
+            <h2>Результат (JSON)</h2>
+            <div class="json-output" id="jsonOutput">
+                <!-- JSON будет отображен здесь -->
+            </div>
+            <button class="download-btn" id="downloadJsonBtn2">💾 Скачать JSON</button>
+            <button class="copy-btn" id="copyJsonBtn">Копировать JSON</button>
+        </div>
+    </div>
+	
+<script src="script.js"></script>
+
+    <script>
+        let employeesData = { "employees": [] };
+        let currentEmployeeId = null;
+        let isCreatingNew = false;
+
+        // DOM элементы
+        const employeesContainer = document.getElementById('employeesContainer');
+        const employeeForm = document.getElementById('employeeForm');
+        const formTitle = document.getElementById('formTitle');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+        const deleteEmployeeBtn = document.getElementById('deleteEmployeeBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const addDocumentBtn = document.getElementById('addDocumentBtn');
+        const documentsContainer = document.getElementById('documentsContainer');
+        const copyJsonBtn = document.getElementById('copyJsonBtn');
+        const jsonFileInput = document.getElementById('jsonFileInput');
+        const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+        const downloadJsonBtn2 = document.getElementById('downloadJsonBtn2');
+
+        // Инициализация
+        function init() {
+            renderEmployeesList();
+            updateJsonOutput();
+            
+            // Обработчики событий
+            employeeForm.addEventListener('submit', saveEmployee);
+            addEmployeeBtn.addEventListener('click', createNewEmployee);
+            deleteEmployeeBtn.addEventListener('click', deleteEmployee);
+            cancelEditBtn.addEventListener('click', cancelEdit);
+            addDocumentBtn.addEventListener('click', addDocument);
+            copyJsonBtn.addEventListener('click', copyJsonToClipboard);
+            jsonFileInput.addEventListener('change', handleFileUpload);
+            downloadJsonBtn.addEventListener('click', downloadJson);
+            downloadJsonBtn2.addEventListener('click', downloadJson);
+        }
+
+        // Загрузка файла JSON
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    if (jsonData.employees && Array.isArray(jsonData.employees)) {
+                        employeesData = jsonData;
+                        renderEmployeesList();
+                        updateJsonOutput();
+                        employeeForm.reset();
+                        documentsContainer.innerHTML = '';
+                        currentEmployeeId = null;
+                        formTitle.textContent = 'Редактирование сотрудника';
+                        deleteEmployeeBtn.style.display = 'none';
+                        
+                        // Снятие выделения с сотрудников
+                        document.querySelectorAll('.employee-card').forEach(card => {
+                            card.classList.remove('active');
+                        });
+                        
+                        alert('Файл успешно загружен!');
+                    } else {
+                        alert('Ошибка: Неверный формат JSON файла. Ожидается объект с массивом "employees".');
+                    }
+                } catch (error) {
+                    alert('Ошибка при чтении файла: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Сброс значения input, чтобы можно было загрузить тот же файл снова
+            event.target.value = '';
+        }
+        // Скачивание JSON файла
+        function downloadJson() {
+            const dataStr = JSON.stringify(employeesData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'employees_data.json';
+            link.click();
+            
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Рендер списка сотрудников
+        function renderEmployeesList() {
+            employeesContainer.innerHTML = '';
+            
+            if (employeesData.employees.length === 0) {
+                employeesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i>👥</i>
+                        <p>Нет сотрудников для отображения</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            employeesData.employees.forEach(employee => {
+                const employeeCard = document.createElement('div');
+                employeeCard.className = 'employee-card';
+                employeeCard.innerHTML = `
+                    <div class="employee-name">${employee.name}</div>
+                    <div class="employee-position">${employee.position}</div>
+                `;
+                employeeCard.addEventListener('click', () => editEmployee(employee.id));
+                employeesContainer.appendChild(employeeCard);
+            });
+        }
+
+        // Редактирование сотрудника
+        function editEmployee(id) {
+            const employee = employeesData.employees.find(emp => emp.id === id);
+            if (!employee) return;
+            
+            currentEmployeeId = id;
+            isCreatingNew = false;
+            
+            // Заполнение формы
+            document.getElementById('employeeId').value = employee.id;
+            document.getElementById('employeeName').value = employee.name;
+            document.getElementById('employeePosition').value = employee.position;
+            document.getElementById('employeePhoto').value = employee.photo || '';
+            document.getElementById('employeeEducation').value = employee.education || '';
+            document.getElementById('employeeExperience').value = employee.experience || '';
+            document.getElementById('employeeDescription').value = employee.description || '';
+            
+            // Заполнение документов
+            renderDocuments(employee.documents || []);
+            
+            // Обновление UI
+            formTitle.textContent = 'Редактирование сотрудника';
+            deleteEmployeeBtn.style.display = 'inline-block';
+            
+            // Подсветка выбранного сотрудника
+            document.querySelectorAll('.employee-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelectorAll('.employee-card').forEach(card => {
+                if (card.querySelector('.employee-name').textContent === employee.name) {
+                    card.classList.add('active');
+                }
+            });
+        }
+
+        // Создание нового сотрудника
+        function createNewEmployee() {
+            currentEmployeeId = null;
+            isCreatingNew = true;
+            
+            // Очистка формы
+            employeeForm.reset();
+            documentsContainer.innerHTML = '';
+            
+            // Генерация ID
+            const newId = 'employee' + (employeesData.employees.length + 1);
+            document.getElementById('employeeId').value = newId;
+            
+            // Обновление UI
+            formTitle.textContent = 'Добавление нового сотрудника';
+            deleteEmployeeBtn.style.display = 'none';
+            
+            // Снятие выделения с сотрудников
+            document.querySelectorAll('.employee-card').forEach(card => {
+                card.classList.remove('active');
+            });
+        }
+
+        // Сохранение сотрудника
+        function saveEmployee(e) {
+            e.preventDefault();
+            
+            const employeeData = {
+                id: document.getElementById('employeeId').value,
+                name: document.getElementById('employeeName').value,
+                position: document.getElementById('employeePosition').value,
+                photo: document.getElementById('employeePhoto').value,
+                education: document.getElementById('employeeEducation').value,
+                experience: document.getElementById('employeeExperience').value,
+                description: document.getElementById('employeeDescription').value,
+                documents: getDocumentsData()
+            };
+            
+            if (isCreatingNew) {
+                // Добавление нового сотрудника
+                employeesData.employees.push(employeeData);
+            } else {
+                // Обновление существующего сотрудника
+                const index = employeesData.employees.findIndex(emp => emp.id === currentEmployeeId);
+                if (index !== -1) {
+                    employeesData.employees[index] = employeeData;
+                }
+            }
+            
+            // Обновление UI
+            renderEmployeesList();
+            updateJsonOutput();
+            
+            // Если создавали нового, переходим к его редактированию
+            if (isCreatingNew) {
+                editEmployee(employeeData.id);
+            }
+            
+            alert('Сотрудник успешно сохранен!');
+        }
+
+        // Удаление сотрудника
+        function deleteEmployee() {
+            if (!currentEmployeeId || isCreatingNew) return;
+            
+            if (confirm('Вы уверены, что хотите удалить этого сотрудника?')) {
+                employeesData.employees = employeesData.employees.filter(emp => emp.id !== currentEmployeeId);
+                
+                // Обновление UI
+                renderEmployeesList();
+                updateJsonOutput();
+                employeeForm.reset();
+                documentsContainer.innerHTML = '';
+                
+                currentEmployeeId = null;
+                formTitle.textContent = 'Редактирование сотрудника';
+                deleteEmployeeBtn.style.display = 'none';
+            }
+        }
+
+        // Отмена редактирования
+        function cancelEdit() {
+            if (currentEmployeeId) {
+                editEmployee(currentEmployeeId);
+            } else {
+                employeeForm.reset();
+                documentsContainer.innerHTML = '';
+                formTitle.textContent = 'Редактирование сотрудника';
+                deleteEmployeeBtn.style.display = 'none';
+                
+                // Снятие выделения с сотрудников
+                document.querySelectorAll('.employee-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+            }
+        }
+
+        // Работа с документами
+        function renderDocuments(documents) {
+            documentsContainer.innerHTML = '';
+            
+            documents.forEach((doc, index) => {
+                const documentItem = document.createElement('div');
+                documentItem.className = 'document-item';
+                documentItem.innerHTML = `
+                    <input type="text" placeholder="Название документа" value="${doc.name}" data-index="${index}" data-field="name">
+                    <input type="text" placeholder="URL изображения" value="${doc.image}" data-index="${index}" data-field="image">
+                    <button type="button" class="remove-document" data-index="${index}">×</button>
+                `;
+                documentsContainer.appendChild(documentItem);
+            });
+            
+            // Добавляем обработчики для удаления документов
+            document.querySelectorAll('.remove-document').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeDocument(index);
+                });
+            });
+        }
+
+        function addDocument() {
+            const documents = getDocumentsData();
+            documents.push({ name: '', image: '' });
+            renderDocuments(documents);
+        }
+
+        function removeDocument(index) {
+            const documents = getDocumentsData();
+            documents.splice(index, 1);
+            renderDocuments(documents);
+        }
+
+        function getDocumentsData() {
+            const documents = [];
+            const documentInputs = documentsContainer.querySelectorAll('input[data-field="name"]');
+            
+            documentInputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const name = input.value;
+                const imageInput = documentsContainer.querySelector(`input[data-field="image"][data-index="${index}"]`);
+                const image = imageInput ? imageInput.value : '';
+                
+                if (name || image) {
+                    documents.push({ name, image });
+                }
+            });
+            
+            return documents;
+        }
+
+        // Обновление JSON вывода
+        function updateJsonOutput() {
+            jsonOutput.textContent = JSON.stringify(employeesData, null, 2);
+        }
+
+        // Копирование JSON в буфер обмена
+        function copyJsonToClipboard() {
+            navigator.clipboard.writeText(JSON.stringify(employeesData, null, 2))
+                .then(() => {
+                    const originalText = copyJsonBtn.textContent;
+                    copyJsonBtn.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        copyJsonBtn.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования: ', err);
+                    alert('Не удалось скопировать JSON');
+                });
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+	
+	
+</body>
+</html>
