@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Конструктор отзывов</title>
     <style>
+:root{
+  --panel:#11131a;
+  --panel2:#0f1117;
+  --text:#e8eaf0;
+  --muted:#a8b0c0;
+  --border:rgba(255,255,255,.10);
+  --border2:rgba(255,255,255,.16);
+  --danger:#ff6a6a;
+  --ok:#57d48b;
+  --primary:#6aa6ff;
+  --primary2:rgba(106,166,255,.12);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
 body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   background:linear-gradient(180deg, #0b0c10 0%, #07080b 100%);
@@ -12,15 +28,463 @@ body{
   line-height:1.55;
 }
 
-    .white-text {
-        color: white;
-    }
+.container{
+  max-width:1200px;
+  margin:0 auto;
 }
 
-</style>
+h1{
+  font-size:16px;
+  margin:0 0 6px 0;
+  letter-spacing:.2px;
+}
+.subtitle{
+  font-size:12px;
+  color:var(--muted);
+}
 
-<link rel="stylesheet" href="header.css">	
+/* Layout */
+.file-controls{
+  display:flex;
+  gap:10px;
+  margin:12px 0;
+  flex-wrap:wrap;
+}
 
+.main-content{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* Panels */
+.reviews-list,
+.review-form-container,
+.json-output-container{
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel2) 100%);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+.reviews-list{ flex:1; min-width:300px; }
+.review-form-container{ flex:2; min-width:380px; }
+
+/* Section titles */
+.reviews-list h2,
+.review-form-container h2,
+.json-output-container h2,
+.docs-section h3,
+.attachments-section h3,
+.tags-section h3{
+  font-size:13px;
+  margin:0 0 10px;
+  color:#d9def0;
+  font-weight:650;
+}
+
+/* Cards */
+.review-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:transform .03s ease, background .15s ease, border-color .15s ease;
+}
+.review-card:hover{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.22);
+  transform:translateY(1px);
+}
+.review-card.active{
+  background:rgba(106,166,255,.10);
+  border-color:rgba(106,166,255,.45);
+}
+.review-author{
+  font-weight:650;
+  font-size:13px;
+  margin-bottom:2px;
+  color:#fff;
+}
+.review-info{
+  color:var(--muted);
+  font-size:12px;
+  display:flex;
+  justify-content:space-between;
+}
+.review-rating{
+  color:#ffc107;
+  font-size:12px;
+}
+.review-problem{
+  font-size:12px;
+  margin-top:6px;
+  color:#b8c2e0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Forms */
+.form-group{ margin-bottom:12px; }
+.form-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+}
+.form-row .form-group{
+  flex:1;
+  margin-bottom:0;
+}
+label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:600;
+  color:var(--muted);
+  font-size:12px;
+}
+input, textarea, select{
+  width:100%;
+  padding:10px 10px;
+  border:1px solid var(--border2);
+  border-radius:12px;
+  font-size:12px;
+  color:var(--text);
+  background:rgba(255,255,255,.04);
+  transition:background .15s ease, border-color .15s ease, transform .03s ease;
+}
+input::placeholder, textarea::placeholder{ color:rgba(168,176,192,.75); }
+input:focus, textarea:focus, select:focus{
+  border-color:rgba(106,166,255,.55);
+  outline:none;
+  box-shadow:0 0 0 2px rgba(106,166,255,.18);
+  background:rgba(255,255,255,.06);
+}
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+/* Custom select for status */
+.status-select-wrapper{
+  position:relative;
+}
+.status-select{
+  width:100%;
+  padding:10px 10px;
+  border:1px solid var(--border2);
+  border-radius:12px;
+  font-size:12px;
+  color:var(--text);
+  background:rgba(255,255,255,.04);
+  appearance:none;
+  padding-right:30px;
+}
+.status-select:focus{
+  border-color:rgba(106,166,255,.55);
+  outline:none;
+  box-shadow:0 0 0 2px rgba(106,166,255,.18);
+  background:rgba(255,255,255,.06);
+}
+.status-select option{
+  background:var(--panel);
+  color:var(--text);
+}
+.status-select-icon{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:var(--muted);
+}
+
+/* Rating stars */
+.rating-container{
+  display:flex;
+  gap:4px;
+}
+.rating-star{
+  font-size:18px;
+  cursor:pointer;
+  color:var(--muted);
+  transition:color .2s ease;
+}
+.rating-star:hover,
+.rating-star.active{
+  color:#ffc107;
+}
+
+/* Tags */
+.tags-container{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:12px;
+}
+.tag{
+  background:rgba(106,166,255,.10);
+  border:1px solid rgba(106,166,255,.25);
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.tag-remove{
+  cursor:pointer;
+  opacity:.7;
+  transition:opacity .2s ease;
+}
+.tag-remove:hover{ opacity:1; }
+.tag-input-row{
+  display:flex;
+  gap:8px;
+}
+.tag-input-row input{ flex:1; }
+
+/* Law areas */
+.law-areas-container{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.law-area-option{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:6px 12px;
+  font-size:11px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.law-area-option:hover{
+  background:rgba(255,255,255,.08);
+}
+.law-area-option.selected{
+  background:rgba(87,212,139,.15);
+  border-color:rgba(87,212,139,.45);
+  color:#57d48b;
+}
+
+/* Documents and Attachments sections */
+.docs-section,
+.attachments-section{
+  margin-top:16px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+.doc-item,
+.attachment-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+.doc-fields,
+.attachment-fields{
+  display:flex;
+  flex:1;
+  gap:8px;
+}
+.doc-field,
+.attachment-field{
+  flex:1;
+}
+.doc-field input,
+.attachment-field input{
+  width:100%;
+}
+.doc-remove,
+.attachment-remove{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-color:rgba(255,106,106,.45);
+  background:rgba(255,106,106,.08);
+  color:var(--text);
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+/* Buttons (unified) */
+.btn,
+.file-input-btn,
+.add-doc-btn,
+.add-attachment-btn,
+.copy-btn,
+.download-btn{
+  appearance:none;
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  border-radius:12px;
+  padding:10px 10px;
+  font-size:12px;
+  cursor:pointer;
+  transition:transform .03s ease, background .15s ease, border-color .15s ease;
+  user-select:none;
+}
+.btn:hover,
+.file-input-btn:hover,
+.add-doc-btn:hover,
+.add-attachment-btn:hover,
+.copy-btn:hover,
+.download-btn:hover{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.22);
+}
+.btn:active,
+.file-input-btn:active,
+.add-doc-btn:active,
+.add-attachment-btn:active,
+.copy-btn:active,
+.download-btn:active{
+  transform:translateY(1px);
+}
+
+/* Variants */
+.btn-primary{
+  border-color:rgba(106,166,255,.55);
+  background:rgba(106,166,255,.12);
+}
+.btn-primary:hover{ background:rgba(106,166,255,.16); }
+
+.btn-secondary{
+  border-color:rgba(255,255,255,.18);
+}
+.btn-danger{
+  border-color:rgba(255,106,106,.55);
+  background:rgba(255,106,106,.10);
+}
+.btn-success{
+  border-color:rgba(87,212,139,.55);
+  background:rgba(87,212,139,.10);
+}
+
+.file-input-wrapper{
+  position:relative;
+  overflow:hidden;
+  display:inline-block;
+  flex:1;
+  min-width:220px;
+}
+.file-input-wrapper input[type=file]{
+  position:absolute;
+  left:0; top:0;
+  opacity:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+}
+
+/* Dashed buttons */
+.add-doc-btn,
+.add-attachment-btn{
+  background:transparent;
+  border:1px dashed rgba(106,166,255,.45);
+  color:#dfe5ff;
+  padding:8px 10px;
+  border-radius:999px;
+  width:100%;
+}
+.add-doc-btn:hover,
+.add-attachment-btn:hover{
+  background:rgba(106,166,255,.10);
+  border-color:rgba(106,166,255,.65);
+}
+
+/* Status badge */
+.status-badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+}
+.status-published{
+  background:rgba(87,212,139,.15);
+  color:#57d48b;
+}
+.status-draft{
+  background:rgba(255,193,7,.15);
+  color:#ffc107;
+}
+
+/* Action row */
+.action-buttons{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+/* Empty state */
+.empty-state{
+  text-align:center;
+  padding:26px 14px;
+  color:var(--muted);
+  border:1px dashed rgba(255,255,255,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.02);
+}
+.empty-state i{
+  font-size:2rem;
+  margin-bottom:10px;
+  display:block;
+  opacity:.9;
+}
+
+/* JSON output */
+.json-output-container{
+  margin-top:12px;
+}
+.json-output{
+  margin-top:10px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.14);
+  color:#e9eeff;
+  padding:12px;
+  border-radius:12px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  white-space:pre-wrap;
+  max-height:320px;
+  overflow:auto;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* Positioning of bottom-right buttons */
+.copy-btn,
+.download-btn{
+  padding:8px 10px;
+  border-radius:999px;
+  float:right;
+  margin-top:10px;
+  margin-left:8px;
+}
+
+/* Mobile */
+@media (max-width: 820px){
+  body{ padding:10px; }
+  header{ text-align:left; }
+  .main-content{ flex-direction:column; }
+  .review-form-container, .reviews-list{ min-width:100%; }
+  .file-controls{ flex-direction:column; }
+  .form-row{ flex-direction:column; }
+  .doc-fields,
+  .attachment-fields{ flex-direction:column; }
+}
+    </style>
+	
+	<link rel="stylesheet" href="header.css">	
 </head>
 <body>
 
@@ -28,15 +492,753 @@ body{
 <div id="hdrx-mount"></div>
 <!-- header -->	
 
-<div class="container">
-    <h1 class="white-text">Раздел в разработке</h1>
-</div>
+    <div class="container">
+        <header>
+            <h1>Конструктор отзывов</h1>
+            <p class="subtitle">Редактируйте, добавляйте и удаляйте отзывы клиентов</p>
+        </header>
         
-
+        <div class="file-controls">
+            <div class="file-input-wrapper">
+                <div class="file-input-btn">📁 Загрузить JSON файл</div>
+                <input type="file" id="jsonFileInput" accept=".json">
+            </div>
+            <button id="downloadJsonBtn" class="btn btn-success">💾 Скачать JSON</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="reviews-list">
+                <h2>Список отзывов</h2>
+                <div id="reviewsContainer">
+                    <!-- Список отзывов будет загружен сюда -->
+                </div>
+                <button id="addReviewBtn" class="btn btn-success" style="width: 100%; margin-top: 15px;">
+                    + Добавить новый отзыв
+                </button>
+            </div>
+            
+            <div class="review-form-container">
+                <h2 id="formTitle">Редактирование отзыва</h2>
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label for="reviewId">ID отзыва:</label>
+                        <input type="text" id="reviewId" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reviewDate">Дата:</label>
+                            <input type="date" id="reviewDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewStatus">Статус:</label>
+                            <div class="status-select-wrapper">
+                                <select id="reviewStatus" class="status-select">
+                                    <option value="published">Опубликован</option>
+                                    <option value="draft">Черновик</option>
+                                </select>
+                                <div class="status-select-icon">▼</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reviewAuthor">Автор:</label>
+                            <input type="text" id="reviewAuthor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewAuthorRole">Роль:</label>
+                            <input type="text" id="reviewAuthorRole" required placeholder="Физ. лицо, Юр. лицо и т.д.">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Рейтинг:</label>
+                        <div class="rating-container" id="ratingContainer">
+                            <span class="rating-star" data-value="1">☆</span>
+                            <span class="rating-star" data-value="2">☆</span>
+                            <span class="rating-star" data-value="3">☆</span>
+                            <span class="rating-star" data-value="4">☆</span>
+                            <span class="rating-star" data-value="5">☆</span>
+                        </div>
+                        <input type="hidden" id="reviewRating" value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Области права:</label>
+                        <div class="law-areas-container" id="lawAreasContainer">
+                            <span class="law-area-option" data-value="Трудовое право">Трудовое право</span>
+                            <span class="law-area-option" data-value="Гражданское право">Гражданское право</span>
+                            <span class="law-area-option" data-value="Семейное право">Семейное право</span>
+                            <span class="law-area-option" data-value="Жилищное право">Жилищное право</span>
+                            <span class="law-area-option" data-value="Налоговое право">Налоговое право</span>
+                            <span class="law-area-option" data-value="Административное право">Административное право</span>
+                            <span class="law-area-option" data-value="Уголовное право">Уголовное право</span>
+                            <span class="law-area-option" data-value="Арбитраж">Арбитраж</span>
+                        </div>
+                        <input type="hidden" id="lawAreas">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewProblem">Проблема:</label>
+                        <input type="text" id="reviewProblem" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewGoal">Цель:</label>
+                        <input type="text" id="reviewGoal" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewResult">Результат:</label>
+                        <input type="text" id="reviewResult" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewText">Текст отзыва:</label>
+                        <textarea id="reviewText" required></textarea>
+                    </div>
+                    
+                    <div class="tags-section">
+                        <h3>Теги</h3>
+                        <div class="tags-container" id="tagsContainer">
+                            <!-- Теги будут добавляться здесь -->
+                        </div>
+                        <div class="tag-input-row">
+                            <input type="text" id="newTagInput" placeholder="Новый тег">
+                            <button type="button" id="addTagBtn" class="btn btn-secondary">Добавить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="docs-section">
+                        <h3>Документы (PDF)</h3>
+                        <div id="docsContainer">
+                            <!-- Документы будут добавляться здесь -->
+                        </div>
+                        <button type="button" id="addDocBtn" class="add-doc-btn">
+                            + Добавить документ
+                        </button>
+                    </div>
+                    
+                    <div class="attachments-section">
+                        <h3>Вложения (изображения)</h3>
+                        <div id="attachmentsContainer">
+                            <!-- Вложения будут добавляться здесь -->
+                        </div>
+                        <button type="button" id="addAttachmentBtn" class="add-attachment-btn">
+                            + Добавить вложение
+                        </button>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        <button type="button" id="deleteReviewBtn" class="btn btn-danger">Удалить отзыв</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="json-output-container">
+            <h2>Результат (JSON)</h2>
+            <div class="json-output" id="jsonOutput">
+                <!-- JSON будет отображен здесь -->
+            </div>
+            <button class="download-btn" id="downloadJsonBtn2">💾 Скачать JSON</button>
+            <button class="copy-btn" id="copyJsonBtn">Копировать JSON</button>
+        </div>
+    </div>
 	
 <script src="script.js"></script>
-	
-	
+   
+   <script>
+        let reviewsData = { "reviews": [] };
+        let currentReviewId = null;
+        let isCreatingNew = false;
+
+        // DOM элементы
+        const reviewsContainer = document.getElementById('reviewsContainer');
+        const reviewForm = document.getElementById('reviewForm');
+        const formTitle = document.getElementById('formTitle');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const addReviewBtn = document.getElementById('addReviewBtn');
+        const deleteReviewBtn = document.getElementById('deleteReviewBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const addDocBtn = document.getElementById('addDocBtn');
+        const addAttachmentBtn = document.getElementById('addAttachmentBtn');
+        const docsContainer = document.getElementById('docsContainer');
+        const attachmentsContainer = document.getElementById('attachmentsContainer');
+        const copyJsonBtn = document.getElementById('copyJsonBtn');
+        const jsonFileInput = document.getElementById('jsonFileInput');
+        const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+        const downloadJsonBtn2 = document.getElementById('downloadJsonBtn2');
+        const ratingContainer = document.getElementById('ratingContainer');
+        const ratingInput = document.getElementById('reviewRating');
+        const lawAreasContainer = document.getElementById('lawAreasContainer');
+        const lawAreasInput = document.getElementById('lawAreas');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const newTagInput = document.getElementById('newTagInput');
+        const addTagBtn = document.getElementById('addTagBtn');
+
+        // Инициализация
+        function init() {
+            // Установка сегодняшней даты по умолчанию
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('reviewDate').value = formattedDate;
+            
+            renderReviewsList();
+            updateJsonOutput();
+            
+            // Обработчики событий
+            reviewForm.addEventListener('submit', saveReview);
+            addReviewBtn.addEventListener('click', createNewReview);
+            deleteReviewBtn.addEventListener('click', deleteReview);
+            cancelEditBtn.addEventListener('click', cancelEdit);
+            addDocBtn.addEventListener('click', addDoc);
+            addAttachmentBtn.addEventListener('click', addAttachment);
+            copyJsonBtn.addEventListener('click', copyJsonToClipboard);
+            jsonFileInput.addEventListener('change', handleFileUpload);
+            downloadJsonBtn.addEventListener('click', downloadJson);
+            downloadJsonBtn2.addEventListener('click', downloadJson);
+            addTagBtn.addEventListener('click', addTag);
+            newTagInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+            
+            // Рейтинг
+            ratingContainer.querySelectorAll('.rating-star').forEach(star => {
+                star.addEventListener('click', () => setRating(parseInt(star.dataset.value)));
+            });
+            
+            // Области права
+            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    option.classList.toggle('selected');
+                    updateLawAreas();
+                });
+            });
+        }
+
+        // Загрузка файла JSON
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    if (jsonData.reviews && Array.isArray(jsonData.reviews)) {
+                        reviewsData = jsonData;
+                        renderReviewsList();
+                        updateJsonOutput();
+                        reviewForm.reset();
+                        docsContainer.innerHTML = '';
+                        attachmentsContainer.innerHTML = '';
+                        tagsContainer.innerHTML = '';
+                        currentReviewId = null;
+                        formTitle.textContent = 'Редактирование отзыва';
+                        deleteReviewBtn.style.display = 'none';
+                        
+                        // Установка сегодняшней даты по умолчанию
+                        const today = new Date();
+                        const formattedDate = today.toISOString().split('T')[0];
+                        document.getElementById('reviewDate').value = formattedDate;
+                        
+                        // Снятие выделения с отзывов
+                        document.querySelectorAll('.review-card').forEach(card => {
+                            card.classList.remove('active');
+                        });
+                        
+                        alert('Файл успешно загружен!');
+                    } else {
+                        alert('Ошибка: Неверный формат JSON файла. Ожидается объект с массивом "reviews".');
+                    }
+                } catch (error) {
+                    alert('Ошибка при чтении файла: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Сброс значения input
+            event.target.value = '';
+        }
+
+        // Скачивание JSON файла
+        function downloadJson() {
+            const dataStr = JSON.stringify(reviewsData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'reviews_data.json';
+            link.click();
+            
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Рендер списка отзывов
+        function renderReviewsList() {
+            reviewsContainer.innerHTML = '';
+            
+            if (reviewsData.reviews.length === 0) {
+                reviewsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i>📝</i>
+                        <p>Нет отзывов для отображения</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            reviewsData.reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                // Добавляем data-id атрибут для идентификации
+                reviewCard.setAttribute('data-id', review.id);
+                reviewCard.innerHTML = `
+                    <div class="review-author">${review.author}</div>
+                    <div class="review-info">
+                        <span>${review.date}</span>
+                        <span class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                    </div>
+                    <div class="review-problem">${review.problem}</div>
+                    <div style="margin-top: 8px;">
+                        <span class="status-badge status-${review.status}">${review.status === 'published' ? 'Опубликован' : 'Черновик'}</span>
+                    </div>
+                `;
+                reviewCard.addEventListener('click', () => editReview(review.id));
+                reviewsContainer.appendChild(reviewCard);
+            });
+            
+            // Если есть текущий редактируемый отзыв, подсвечиваем его
+            if (currentReviewId) {
+                document.querySelectorAll('.review-card').forEach(card => {
+                    if (card.getAttribute('data-id') === currentReviewId) {
+                        card.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Редактирование отзыва
+        function editReview(id) {
+            const review = reviewsData.reviews.find(rev => rev.id === id);
+            if (!review) return;
+            
+            currentReviewId = id;
+            isCreatingNew = false;
+            
+            // Заполнение формы
+            document.getElementById('reviewId').value = review.id;
+            document.getElementById('reviewDate').value = review.date;
+            document.getElementById('reviewAuthor').value = review.author;
+            document.getElementById('reviewAuthorRole').value = review.authorRole;
+            setRating(review.rating);
+            document.getElementById('reviewProblem').value = review.problem;
+            document.getElementById('reviewGoal').value = review.goal;
+            document.getElementById('reviewResult').value = review.result;
+            document.getElementById('reviewText').value = review.text;
+            document.getElementById('reviewStatus').value = review.status;
+            
+            // Области права
+            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
+                option.classList.remove('selected');
+                if (review.lawArea && review.lawArea.includes(option.dataset.value)) {
+                    option.classList.add('selected');
+                }
+            });
+            updateLawAreas();
+            
+            // Теги
+            renderTags(review.tags || []);
+            
+            // Документы (убираем поле type при загрузке)
+            const docsForDisplay = (review.docs || []).map(doc => ({
+                title: doc.title || '',
+                url: doc.url || ''
+            }));
+            renderDocs(docsForDisplay);
+            
+            // Вложения (убираем поле type при загрузке)
+            const attachmentsForDisplay = (review.attachments || []).map(att => ({
+                title: att.title || '',
+                url: att.url || ''
+            }));
+            renderAttachments(attachmentsForDisplay);
+            
+            // Обновление UI
+            formTitle.textContent = 'Редактирование отзыва';
+            deleteReviewBtn.style.display = 'inline-block';
+            
+            // Подсветка выбранного отзыва по ID
+            document.querySelectorAll('.review-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.getAttribute('data-id') === id) {
+                    card.classList.add('active');
+                }
+            });
+        }
+
+        // Создание нового отзыва
+        function createNewReview() {
+            currentReviewId = null;
+            isCreatingNew = true;
+            
+            // Очистка формы
+            reviewForm.reset();
+            docsContainer.innerHTML = '';
+            attachmentsContainer.innerHTML = '';
+            tagsContainer.innerHTML = '';
+            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            updateLawAreas();
+            
+            // Генерация ID
+            const newId = 'rev-' + (reviewsData.reviews.length + 1).toString().padStart(3, '0');
+            document.getElementById('reviewId').value = newId;
+            
+            // Установка сегодняшней даты по умолчанию
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('reviewDate').value = formattedDate;
+            
+            // Установка рейтинга по умолчанию
+            setRating(5);
+            
+            // Обновление UI
+            formTitle.textContent = 'Добавление нового отзыва';
+            deleteReviewBtn.style.display = 'none';
+            
+            // Снятие выделения со всех отзывов
+            document.querySelectorAll('.review-card').forEach(card => {
+                card.classList.remove('active');
+            });
+        }
+
+        // Сохранение отзыва
+        function saveReview(e) {
+            e.preventDefault();
+            
+            const reviewData = {
+                id: document.getElementById('reviewId').value,
+                date: document.getElementById('reviewDate').value,
+                author: document.getElementById('reviewAuthor').value,
+                authorRole: document.getElementById('reviewAuthorRole').value,
+                rating: parseInt(ratingInput.value),
+                lawArea: lawAreasInput.value ? JSON.parse(lawAreasInput.value) : [],
+                problem: document.getElementById('reviewProblem').value,
+                goal: document.getElementById('reviewGoal').value,
+                result: document.getElementById('reviewResult').value,
+                text: document.getElementById('reviewText').value,
+                tags: getTagsData(),
+                // Добавляем поле type: "pdf" для всех документов
+                docs: getDocsData().map(doc => ({
+                    title: doc.title,
+                    url: doc.url,
+                    type: "pdf" // Автоматически добавляем
+                })),
+                // Добавляем поле type: "image" для всех вложений
+                attachments: getAttachmentsData().map(attachment => ({
+                    title: attachment.title,
+                    url: attachment.url,
+                    type: "image" // Автоматически добавляем
+                })),
+                status: document.getElementById('reviewStatus').value
+            };
+            
+            const wasCreatingNew = isCreatingNew;
+            
+            if (isCreatingNew) {
+                reviewsData.reviews.push(reviewData);
+            } else {
+                const index = reviewsData.reviews.findIndex(rev => rev.id === currentReviewId);
+                if (index !== -1) {
+                    reviewsData.reviews[index] = reviewData;
+                }
+            }
+            
+            renderReviewsList();
+            updateJsonOutput();
+            
+            if (wasCreatingNew) {
+                editReview(reviewData.id);
+            } else {
+                // После сохранения сохраняем подсветку текущего отзыва
+                currentReviewId = reviewData.id;
+                document.querySelectorAll('.review-card').forEach(card => {
+                    if (card.getAttribute('data-id') === currentReviewId) {
+                        card.classList.add('active');
+                    }
+                });
+            }
+            
+            alert('Отзыв успешно сохранен!');
+        }
+
+        // Удаление отзыва
+        function deleteReview() {
+            if (!currentReviewId || isCreatingNew) return;
+            
+            if (confirm('Вы уверены, что хотите удалить этот отзыв?')) {
+                reviewsData.reviews = reviewsData.reviews.filter(rev => rev.id !== currentReviewId);
+                
+                renderReviewsList();
+                updateJsonOutput();
+                reviewForm.reset();
+                docsContainer.innerHTML = '';
+                attachmentsContainer.innerHTML = '';
+                tagsContainer.innerHTML = '';
+                
+                currentReviewId = null;
+                formTitle.textContent = 'Редактирование отзыва';
+                deleteReviewBtn.style.display = 'none';
+                
+                // Установка сегодняшней даты по умолчанию
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                document.getElementById('reviewDate').value = formattedDate;
+            }
+        }
+
+        // Отмена редактирования
+        function cancelEdit() {
+            if (currentReviewId) {
+                editReview(currentReviewId);
+            } else {
+                reviewForm.reset();
+                docsContainer.innerHTML = '';
+                attachmentsContainer.innerHTML = '';
+                tagsContainer.innerHTML = '';
+                formTitle.textContent = 'Редактирование отзыва';
+                deleteReviewBtn.style.display = 'none';
+                
+                // Установка сегодняшней даты по умолчанию
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                document.getElementById('reviewDate').value = formattedDate;
+                
+                // Снятие выделения со всех отзывов
+                document.querySelectorAll('.review-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+            }
+        }
+
+        // Рейтинг
+        function setRating(value) {
+            ratingInput.value = value;
+            ratingContainer.querySelectorAll('.rating-star').forEach((star, index) => {
+                if (index < value) {
+                    star.textContent = '★';
+                    star.classList.add('active');
+                } else {
+                    star.textContent = '☆';
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Области права
+        function updateLawAreas() {
+            const selectedAreas = Array.from(lawAreasContainer.querySelectorAll('.law-area-option.selected'))
+                .map(option => option.dataset.value);
+            lawAreasInput.value = JSON.stringify(selectedAreas);
+        }
+
+        // Теги
+        function renderTags(tags) {
+            tagsContainer.innerHTML = '';
+            tags.forEach((tag, index) => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" data-index="${index}">×</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+            
+            tagsContainer.querySelectorAll('.tag-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeTag(index);
+                });
+            });
+        }
+
+        function addTag() {
+            const tag = newTagInput.value.trim();
+            if (!tag) return;
+            
+            const tags = getTagsData();
+            if (!tags.includes(tag)) {
+                tags.push(tag);
+                renderTags(tags);
+            }
+            
+            newTagInput.value = '';
+        }
+
+        function removeTag(index) {
+            const tags = getTagsData();
+            tags.splice(index, 1);
+            renderTags(tags);
+        }
+
+        function getTagsData() {
+            return Array.from(tagsContainer.querySelectorAll('.tag'))
+                .map(tag => tag.textContent.replace('×', '').trim());
+        }
+
+        // Документы
+        function renderDocs(docs) {
+            docsContainer.innerHTML = '';
+            
+            docs.forEach((doc, index) => {
+                const docItem = document.createElement('div');
+                docItem.className = 'doc-item';
+                docItem.innerHTML = `
+                    <div class="doc-fields">
+                        <div class="doc-field">
+                            <input type="text" placeholder="Название документа" value="${doc.title}" data-index="${index}" data-field="title">
+                        </div>
+                        <div class="doc-field">
+                            <input type="text" placeholder="URL документа (PDF)" value="${doc.url}" data-index="${index}" data-field="url">
+                        </div>
+                    </div>
+                    <button type="button" class="doc-remove" data-index="${index}">×</button>
+                `;
+                docsContainer.appendChild(docItem);
+            });
+            
+            docsContainer.querySelectorAll('.doc-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeDoc(index);
+                });
+            });
+        }
+
+        function addDoc() {
+            const docs = getDocsData();
+            docs.push({ title: '', url: '' });
+            renderDocs(docs);
+        }
+
+        function removeDoc(index) {
+            const docs = getDocsData();
+            docs.splice(index, 1);
+            renderDocs(docs);
+        }
+
+        function getDocsData() {
+            const docs = [];
+            const titleInputs = docsContainer.querySelectorAll('input[data-field="title"]');
+            
+            titleInputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const title = input.value;
+                const urlInput = docsContainer.querySelector(`input[data-field="url"][data-index="${index}"]`);
+                const url = urlInput ? urlInput.value : '';
+                
+                if (title || url) {
+                    docs.push({ title, url });
+                }
+            });
+            
+            return docs;
+        }
+
+        // Вложения
+        function renderAttachments(attachments) {
+            attachmentsContainer.innerHTML = '';
+            
+            attachments.forEach((attachment, index) => {
+                const attachmentItem = document.createElement('div');
+                attachmentItem.className = 'attachment-item';
+                attachmentItem.innerHTML = `
+                    <div class="attachment-fields">
+                        <div class="attachment-field">
+                            <input type="text" placeholder="Название" value="${attachment.title}" data-index="${index}" data-field="title">
+                        </div>
+                        <div class="attachment-field">
+                            <input type="text" placeholder="URL изображения" value="${attachment.url}" data-index="${index}" data-field="url">
+                        </div>
+                    </div>
+                    <button type="button" class="attachment-remove" data-index="${index}">×</button>
+                `;
+                attachmentsContainer.appendChild(attachmentItem);
+            });
+            
+            attachmentsContainer.querySelectorAll('.attachment-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeAttachment(index);
+                });
+            });
+        }
+
+        function addAttachment() {
+            const attachments = getAttachmentsData();
+            attachments.push({ title: '', url: '' });
+            renderAttachments(attachments);
+        }
+
+        function removeAttachment(index) {
+            const attachments = getAttachmentsData();
+            attachments.splice(index, 1);
+            renderAttachments(attachments);
+        }
+
+        function getAttachmentsData() {
+            const attachments = [];
+            const titleInputs = attachmentsContainer.querySelectorAll('input[data-field="title"]');
+            
+            titleInputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const title = input.value;
+                const urlInput = attachmentsContainer.querySelector(`input[data-field="url"][data-index="${index}"]`);
+                const url = urlInput ? urlInput.value : '';
+                
+                if (title || url) {
+                    attachments.push({ title, url });
+                }
+            });
+            
+            return attachments;
+        }
+
+        // Обновление JSON вывода
+        function updateJsonOutput() {
+            jsonOutput.textContent = JSON.stringify(reviewsData, null, 2);
+        }
+
+        // Копирование JSON в буфер обмена
+        function copyJsonToClipboard() {
+            navigator.clipboard.writeText(JSON.stringify(reviewsData, null, 2))
+                .then(() => {
+                    const originalText = copyJsonBtn.textContent;
+                    copyJsonBtn.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        copyJsonBtn.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования: ', err);
+                    alert('Не удалось скопировать JSON');
+                });
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
 </body>
 </html>
-
