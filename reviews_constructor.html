@@ -163,9 +163,11 @@ input:focus, textarea:focus, select:focus{
   box-shadow:0 0 0 2px rgba(106,166,255,.18);
   background:rgba(255,255,255,.06);
 }
-textarea{
-  min-height:110px;
-  resize:vertical;
+
+/* Изменения для полей с возможностью растягивания */
+.large-textarea {
+  min-height: 80px; /* Вместо 110px */
+  resize: vertical;
 }
 
 /* Custom select for status */
@@ -206,6 +208,7 @@ textarea{
 .rating-container{
   display:flex;
   gap:4px;
+  align-items:center;
 }
 .rating-star{
   font-size:18px;
@@ -234,6 +237,11 @@ textarea{
   display:flex;
   align-items:center;
   gap:4px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.tag:hover{
+  background:rgba(106,166,255,.15);
 }
 .tag-remove{
   cursor:pointer;
@@ -248,12 +256,20 @@ textarea{
 .tag-input-row input{ flex:1; }
 
 /* Law areas */
-.law-areas-container{
+.law-areas-section {
+  margin-bottom: 12px;
+}
+
+.law-areas-text-input {
+  margin-bottom: 8px;
+}
+
+.law-areas-chips{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
 }
-.law-area-option{
+.law-area-chip{
   background:rgba(255,255,255,.04);
   border:1px solid var(--border);
   border-radius:12px;
@@ -262,45 +278,45 @@ textarea{
   cursor:pointer;
   transition:all .2s ease;
 }
-.law-area-option:hover{
+.law-area-chip:hover{
   background:rgba(255,255,255,.08);
 }
-.law-area-option.selected{
+.law-area-chip.selected{
   background:rgba(87,212,139,.15);
   border-color:rgba(87,212,139,.45);
   color:#57d48b;
 }
 
-/* Documents and Attachments sections */
-.docs-section,
-.attachments-section{
+/* Documents and Attachments sections (поменяны местами) */
+.attachments-section, /* Теперь первое */
+.docs-section{ /* Теперь второе */
   margin-top:16px;
   border-top:1px solid var(--border);
   padding-top:12px;
 }
-.doc-item,
-.attachment-item{
+.attachment-item, /* Теперь первое */
+.doc-item{ /* Теперь второе */
   display:flex;
   align-items:center;
   gap:8px;
   margin-bottom:8px;
 }
-.doc-fields,
-.attachment-fields{
+.attachment-fields, /* Теперь первое */
+.doc-fields{ /* Теперь второе */
   display:flex;
   flex:1;
   gap:8px;
 }
-.doc-field,
-.attachment-field{
+.attachment-field, /* Теперь первое */
+.doc-field{ /* Теперь второе */
   flex:1;
 }
-.doc-field input,
-.attachment-field input{
+.attachment-field input, /* Теперь первое */
+.doc-field input{ /* Теперь второе */
   width:100%;
 }
-.doc-remove,
-.attachment-remove{
+.attachment-remove, /* Теперь первое */
+.doc-remove{ /* Теперь второе */
   width:34px;
   height:34px;
   border-radius:12px;
@@ -318,8 +334,8 @@ textarea{
 /* Buttons (unified) */
 .btn,
 .file-input-btn,
-.add-doc-btn,
-.add-attachment-btn,
+.add-attachment-btn, /* Теперь первое */
+.add-doc-btn, /* Теперь второе */
 .copy-btn,
 .download-btn{
   appearance:none;
@@ -335,8 +351,8 @@ textarea{
 }
 .btn:hover,
 .file-input-btn:hover,
-.add-doc-btn:hover,
-.add-attachment-btn:hover,
+.add-attachment-btn:hover, /* Теперь первое */
+.add-doc-btn:hover, /* Теперь второе */
 .copy-btn:hover,
 .download-btn:hover{
   background:rgba(255,255,255,.07);
@@ -344,8 +360,8 @@ textarea{
 }
 .btn:active,
 .file-input-btn:active,
-.add-doc-btn:active,
-.add-attachment-btn:active,
+.add-attachment-btn:active, /* Теперь первое */
+.add-doc-btn:active, /* Теперь второе */
 .copy-btn:active,
 .download-btn:active{
   transform:translateY(1px);
@@ -387,17 +403,17 @@ textarea{
 }
 
 /* Dashed buttons */
-.add-doc-btn,
-.add-attachment-btn{
+.add-attachment-btn, /* Теперь первое */
+.add-doc-btn{ /* Теперь второе */
   background:transparent;
   border:1px dashed rgba(106,166,255,.45);
   color:#dfe5ff;
   padding:8px 10px;
-  border-radius:999px;
+  border-radius:6px;
   width:100%;
 }
-.add-doc-btn:hover,
-.add-attachment-btn:hover{
+.add-attachment-btn:hover, /* Теперь первое */
+.add-doc-btn:hover{ /* Теперь второе */
   background:rgba(106,166,255,.10);
   border-color:rgba(106,166,255,.65);
 }
@@ -406,7 +422,7 @@ textarea{
 .status-badge{
   display:inline-block;
   padding:4px 10px;
-  border-radius:999px;
+  border-radius:6px;
   font-size:11px;
   font-weight:600;
 }
@@ -465,7 +481,7 @@ textarea{
 .copy-btn,
 .download-btn{
   padding:8px 10px;
-  border-radius:999px;
+  border-radius:12px;
   float:right;
   margin-top:10px;
   margin-left:8px;
@@ -479,8 +495,20 @@ textarea{
   .review-form-container, .reviews-list{ min-width:100%; }
   .file-controls{ flex-direction:column; }
   .form-row{ flex-direction:column; }
-  .doc-fields,
-  .attachment-fields{ flex-direction:column; }
+  .attachment-fields, /* Теперь первое */
+  .doc-fields{ /* Теперь второе */
+    flex-direction:column;
+  }
+}
+
+.required-field label::after {
+  content: " *";
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.button-end {
+margin-top:10px;
 }
     </style>
 	
@@ -520,17 +548,32 @@ textarea{
             <div class="review-form-container">
                 <h2 id="formTitle">Редактирование отзыва</h2>
                 <form id="reviewForm">
-                    <div class="form-group">
-                        <label for="reviewId">ID отзыва:</label>
-                        <input type="text" id="reviewId" required>
+                    <!-- Первая строка: ID и оценка -->
+                    <div class="form-row">
+                        <div class="form-group required-field">
+                            <label for="reviewId">ID отзыва:</label>
+                            <input type="text" id="reviewId" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Рейтинг:</label>
+                            <div class="rating-container" id="ratingContainer">
+                                <span class="rating-star" data-value="1">☆</span>
+                                <span class="rating-star" data-value="2">☆</span>
+                                <span class="rating-star" data-value="3">☆</span>
+                                <span class="rating-star" data-value="4">☆</span>
+                                <span class="rating-star" data-value="5">☆</span>
+                            </div>
+                            <input type="hidden" id="reviewRating" value="5">
+                        </div>
                     </div>
                     
+                    <!-- Вторая строка: Дата и статус -->
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group required-field"">
                             <label for="reviewDate">Дата:</label>
                             <input type="date" id="reviewDate" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group required-field"">
                             <label for="reviewStatus">Статус:</label>
                             <div class="status-select-wrapper">
                                 <select id="reviewStatus" class="status-select">
@@ -542,64 +585,56 @@ textarea{
                         </div>
                     </div>
                     
+                    <!-- Третья строка: Автор и роль -->
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group required-field"">
                             <label for="reviewAuthor">Автор:</label>
                             <input type="text" id="reviewAuthor" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group required-field"">
                             <label for="reviewAuthorRole">Роль:</label>
                             <input type="text" id="reviewAuthorRole" required placeholder="Физ. лицо, Юр. лицо и т.д.">
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Рейтинг:</label>
-                        <div class="rating-container" id="ratingContainer">
-                            <span class="rating-star" data-value="1">☆</span>
-                            <span class="rating-star" data-value="2">☆</span>
-                            <span class="rating-star" data-value="3">☆</span>
-                            <span class="rating-star" data-value="4">☆</span>
-                            <span class="rating-star" data-value="5">☆</span>
+                    <!-- Области права -->
+                    <div class="form-group law-areas-section required-field">
+                        <label for="lawAreasInput">Области права:</label>
+                        <div class="law-areas-text-input">
+                            <input type="text" id="lawAreasInput" placeholder="Введите области права или выберите из списка ниже">
                         </div>
-                        <input type="hidden" id="reviewRating" value="5">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Области права:</label>
-                        <div class="law-areas-container" id="lawAreasContainer">
-                            <span class="law-area-option" data-value="Трудовое право">Трудовое право</span>
-                            <span class="law-area-option" data-value="Гражданское право">Гражданское право</span>
-                            <span class="law-area-option" data-value="Семейное право">Семейное право</span>
-                            <span class="law-area-option" data-value="Жилищное право">Жилищное право</span>
-                            <span class="law-area-option" data-value="Налоговое право">Налоговое право</span>
-                            <span class="law-area-option" data-value="Административное право">Административное право</span>
-                            <span class="law-area-option" data-value="Уголовное право">Уголовное право</span>
-                            <span class="law-area-option" data-value="Арбитраж">Арбитраж</span>
+                        <div class="law-areas-chips" id="lawAreasChips">
+                            <span class="law-area-chip" data-value="Трудовое право">Трудовое право</span>
+                            <span class="law-area-chip" data-value="Гражданское право">Гражданское право</span>
+                            <span class="law-area-chip" data-value="Семейное право">Семейное право</span>
+                            <span class="law-area-chip" data-value="Жилищное право">Жилищное право</span>
+                            <span class="law-area-chip" data-value="Налоговое право">Налоговое право</span>
+                            <span class="law-area-chip" data-value="Административное право">Административное право</span>
+                            <span class="law-area-chip" data-value="Уголовное право">Уголовное право</span>
+                            <span class="law-area-chip" data-value="Арбитраж">Арбитраж</span>
                         </div>
                         <input type="hidden" id="lawAreas">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="reviewProblem">Проблема:</label>
-                        <input type="text" id="reviewProblem" required>
+                    <!-- Ситуация (большое поле) -->
+                    <div class="form-group required-field">
+                        <label for="reviewProblem">Ситуация:</label>
+                        <textarea id="reviewProblem" class="large-textarea" required></textarea>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="reviewGoal">Цель:</label>
-                        <input type="text" id="reviewGoal" required>
-                    </div>
-                    
-                    <div class="form-group">
+                    <!-- Результат (большое поле) -->
+                    <div class="form-group required-field">
                         <label for="reviewResult">Результат:</label>
-                        <input type="text" id="reviewResult" required>
+                        <textarea id="reviewResult" class="large-textarea" required></textarea>
                     </div>
                     
+                    <!-- Текст отзыва (большое поле) -->
                     <div class="form-group">
                         <label for="reviewText">Текст отзыва:</label>
-                        <textarea id="reviewText" required></textarea>
+                        <textarea id="reviewText" class="large-textarea"></textarea>
                     </div>
                     
+                    <!-- Теги -->
                     <div class="tags-section">
                         <h3>Теги</h3>
                         <div class="tags-container" id="tagsContainer">
@@ -611,6 +646,18 @@ textarea{
                         </div>
                     </div>
                     
+                    <!-- ВЛОЖЕНИЯ (теперь первое) -->
+                    <div class="attachments-section">
+                        <h3>Скрины</h3>
+                        <div id="attachmentsContainer">
+                            <!-- Вложения будут добавляться здесь -->
+                        </div>
+                        <button type="button" id="addAttachmentBtn" class="add-attachment-btn">
+                            + Добавить скрин
+                        </button>
+                    </div>
+                    
+                    <!-- ДОКУМЕНТЫ (теперь второе) -->
                     <div class="docs-section">
                         <h3>Документы (PDF)</h3>
                         <div id="docsContainer">
@@ -618,16 +665,6 @@ textarea{
                         </div>
                         <button type="button" id="addDocBtn" class="add-doc-btn">
                             + Добавить документ
-                        </button>
-                    </div>
-                    
-                    <div class="attachments-section">
-                        <h3>Вложения (изображения)</h3>
-                        <div id="attachmentsContainer">
-                            <!-- Вложения будут добавляться здесь -->
-                        </div>
-                        <button type="button" id="addAttachmentBtn" class="add-attachment-btn">
-                            + Добавить вложение
                         </button>
                     </div>
                     
@@ -645,9 +682,11 @@ textarea{
             <div class="json-output" id="jsonOutput">
                 <!-- JSON будет отображен здесь -->
             </div>
+        </div>
+		<div class="button-end">
             <button class="download-btn" id="downloadJsonBtn2">💾 Скачать JSON</button>
             <button class="copy-btn" id="copyJsonBtn">Копировать JSON</button>
-        </div>
+			</div>
     </div>
 	
 <script src="script.js"></script>
@@ -675,8 +714,9 @@ textarea{
         const downloadJsonBtn2 = document.getElementById('downloadJsonBtn2');
         const ratingContainer = document.getElementById('ratingContainer');
         const ratingInput = document.getElementById('reviewRating');
-        const lawAreasContainer = document.getElementById('lawAreasContainer');
-        const lawAreasInput = document.getElementById('lawAreas');
+        const lawAreasInputField = document.getElementById('lawAreasInput');
+        const lawAreasChips = document.getElementById('lawAreasChips');
+        const lawAreasHiddenInput = document.getElementById('lawAreas');
         const tagsContainer = document.getElementById('tagsContainer');
         const newTagInput = document.getElementById('newTagInput');
         const addTagBtn = document.getElementById('addTagBtn');
@@ -715,13 +755,57 @@ textarea{
                 star.addEventListener('click', () => setRating(parseInt(star.dataset.value)));
             });
             
-            // Области права
-            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    option.classList.toggle('selected');
-                    updateLawAreas();
+            // Области права - чипсы
+            lawAreasChips.querySelectorAll('.law-area-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const value = chip.dataset.value;
+                    const currentValue = lawAreasInputField.value;
+                    
+                    if (currentValue.includes(value)) {
+                        // Удаляем значение, если уже есть
+                        const values = currentValue.split(',').map(v => v.trim()).filter(v => v !== value);
+                        lawAreasInputField.value = values.join(', ');
+                    } else {
+                        // Добавляем значение
+                        if (currentValue.trim()) {
+                            lawAreasInputField.value = currentValue + ', ' + value;
+                        } else {
+                            lawAreasInputField.value = value;
+                        }
+                    }
+                    
+                    // Обновляем выделение чипса
+                    updateLawAreasChips();
+                    updateLawAreasHidden();
                 });
             });
+            
+            // Области права - текстовое поле
+            lawAreasInputField.addEventListener('input', () => {
+                updateLawAreasChips();
+                updateLawAreasHidden();
+            });
+        }
+
+        // Обновление выделения чипсов областей права
+        function updateLawAreasChips() {
+            const currentValue = lawAreasInputField.value;
+            const values = currentValue.split(',').map(v => v.trim()).filter(v => v);
+            
+            lawAreasChips.querySelectorAll('.law-area-chip').forEach(chip => {
+                if (values.includes(chip.dataset.value)) {
+                    chip.classList.add('selected');
+                } else {
+                    chip.classList.remove('selected');
+                }
+            });
+        }
+
+        // Обновление скрытого поля с областями права
+        function updateLawAreasHidden() {
+            const currentValue = lawAreasInputField.value;
+            const values = currentValue.split(',').map(v => v.trim()).filter(v => v);
+            lawAreasHiddenInput.value = JSON.stringify(values);
         }
 
         // Загрузка файла JSON
@@ -741,6 +825,9 @@ textarea{
                         docsContainer.innerHTML = '';
                         attachmentsContainer.innerHTML = '';
                         tagsContainer.innerHTML = '';
+                        lawAreasInputField.value = '';
+                        updateLawAreasChips();
+                        updateLawAreasHidden();
                         currentReviewId = null;
                         formTitle.textContent = 'Редактирование отзыва';
                         deleteReviewBtn.style.display = 'none';
@@ -749,6 +836,9 @@ textarea{
                         const today = new Date();
                         const formattedDate = today.toISOString().split('T')[0];
                         document.getElementById('reviewDate').value = formattedDate;
+                        
+                        // Установка рейтинга по умолчанию
+                        setRating(5);
                         
                         // Снятие выделения с отзывов
                         document.querySelectorAll('.review-card').forEach(card => {
@@ -841,36 +931,31 @@ textarea{
             document.getElementById('reviewAuthorRole').value = review.authorRole;
             setRating(review.rating);
             document.getElementById('reviewProblem').value = review.problem;
-            document.getElementById('reviewGoal').value = review.goal;
             document.getElementById('reviewResult').value = review.result;
-            document.getElementById('reviewText').value = review.text;
+            document.getElementById('reviewText').value = review.text || '';
             document.getElementById('reviewStatus').value = review.status;
             
             // Области права
-            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
-                option.classList.remove('selected');
-                if (review.lawArea && review.lawArea.includes(option.dataset.value)) {
-                    option.classList.add('selected');
-                }
-            });
-            updateLawAreas();
+            lawAreasInputField.value = Array.isArray(review.lawArea) ? review.lawArea.join(', ') : '';
+            updateLawAreasChips();
+            updateLawAreasHidden();
             
             // Теги
             renderTags(review.tags || []);
             
-            // Документы (убираем поле type при загрузке)
-            const docsForDisplay = (review.docs || []).map(doc => ({
-                title: doc.title || '',
-                url: doc.url || ''
-            }));
-            renderDocs(docsForDisplay);
-            
-            // Вложения (убираем поле type при загрузке)
+            // Вложения (теперь первое)
             const attachmentsForDisplay = (review.attachments || []).map(att => ({
                 title: att.title || '',
                 url: att.url || ''
             }));
             renderAttachments(attachmentsForDisplay);
+            
+            // Документы (теперь второе)
+            const docsForDisplay = (review.docs || []).map(doc => ({
+                title: doc.title || '',
+                url: doc.url || ''
+            }));
+            renderDocs(docsForDisplay);
             
             // Обновление UI
             formTitle.textContent = 'Редактирование отзыва';
@@ -895,10 +980,9 @@ textarea{
             docsContainer.innerHTML = '';
             attachmentsContainer.innerHTML = '';
             tagsContainer.innerHTML = '';
-            lawAreasContainer.querySelectorAll('.law-area-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            updateLawAreas();
+            lawAreasInputField.value = '';
+            updateLawAreasChips();
+            updateLawAreasHidden();
             
             // Генерация ID
             const newId = 'rev-' + (reviewsData.reviews.length + 1).toString().padStart(3, '0');
@@ -926,32 +1010,29 @@ textarea{
         function saveReview(e) {
             e.preventDefault();
             
-            const reviewData = {
-                id: document.getElementById('reviewId').value,
-                date: document.getElementById('reviewDate').value,
-                author: document.getElementById('reviewAuthor').value,
-                authorRole: document.getElementById('reviewAuthorRole').value,
-                rating: parseInt(ratingInput.value),
-                lawArea: lawAreasInput.value ? JSON.parse(lawAreasInput.value) : [],
-                problem: document.getElementById('reviewProblem').value,
-                goal: document.getElementById('reviewGoal').value,
-                result: document.getElementById('reviewResult').value,
-                text: document.getElementById('reviewText').value,
-                tags: getTagsData(),
-                // Добавляем поле type: "pdf" для всех документов
-                docs: getDocsData().map(doc => ({
-                    title: doc.title,
-                    url: doc.url,
-                    type: "pdf" // Автоматически добавляем
-                })),
-                // Добавляем поле type: "image" для всех вложений
-                attachments: getAttachmentsData().map(attachment => ({
-                    title: attachment.title,
-                    url: attachment.url,
-                    type: "image" // Автоматически добавляем
-                })),
-                status: document.getElementById('reviewStatus').value
-            };
+			const reviewData = {
+				id: document.getElementById('reviewId').value,
+				date: document.getElementById('reviewDate').value,
+				author: document.getElementById('reviewAuthor').value,
+				authorRole: document.getElementById('reviewAuthorRole').value,
+				rating: parseInt(ratingInput.value),
+				lawArea: lawAreasHiddenInput.value ? JSON.parse(lawAreasHiddenInput.value) : [],
+				problem: document.getElementById('reviewProblem').value,
+				result: document.getElementById('reviewResult').value,
+				text: document.getElementById('reviewText').value, // Не обязательное
+				tags: getTagsData(), // Не обязательное
+				attachments: getAttachmentsData().map(attachment => ({
+					title: attachment.title,
+					url: attachment.url,
+					type: "image"
+				})), // Не обязательное, теперь первое
+				docs: getDocsData().map(doc => ({
+					title: doc.title,
+					url: doc.url,
+					type: "pdf"
+				})), // Не обязательное, теперь второе
+				status: document.getElementById('reviewStatus').value // Не обязательное
+			};
             
             const wasCreatingNew = isCreatingNew;
             
@@ -995,6 +1076,9 @@ textarea{
                 docsContainer.innerHTML = '';
                 attachmentsContainer.innerHTML = '';
                 tagsContainer.innerHTML = '';
+                lawAreasInputField.value = '';
+                updateLawAreasChips();
+                updateLawAreasHidden();
                 
                 currentReviewId = null;
                 formTitle.textContent = 'Редактирование отзыва';
@@ -1004,6 +1088,9 @@ textarea{
                 const today = new Date();
                 const formattedDate = today.toISOString().split('T')[0];
                 document.getElementById('reviewDate').value = formattedDate;
+                
+                // Установка рейтинга по умолчанию
+                setRating(5);
             }
         }
 
@@ -1016,6 +1103,9 @@ textarea{
                 docsContainer.innerHTML = '';
                 attachmentsContainer.innerHTML = '';
                 tagsContainer.innerHTML = '';
+                lawAreasInputField.value = '';
+                updateLawAreasChips();
+                updateLawAreasHidden();
                 formTitle.textContent = 'Редактирование отзыва';
                 deleteReviewBtn.style.display = 'none';
                 
@@ -1023,6 +1113,9 @@ textarea{
                 const today = new Date();
                 const formattedDate = today.toISOString().split('T')[0];
                 document.getElementById('reviewDate').value = formattedDate;
+                
+                // Установка рейтинга по умолчанию
+                setRating(5);
                 
                 // Снятие выделения со всех отзывов
                 document.querySelectorAll('.review-card').forEach(card => {
@@ -1043,13 +1136,6 @@ textarea{
                     star.classList.remove('active');
                 }
             });
-        }
-
-        // Области права
-        function updateLawAreas() {
-            const selectedAreas = Array.from(lawAreasContainer.querySelectorAll('.law-area-option.selected'))
-                .map(option => option.dataset.value);
-            lawAreasInput.value = JSON.stringify(selectedAreas);
         }
 
         // Теги
@@ -1097,66 +1183,7 @@ textarea{
                 .map(tag => tag.textContent.replace('×', '').trim());
         }
 
-        // Документы
-        function renderDocs(docs) {
-            docsContainer.innerHTML = '';
-            
-            docs.forEach((doc, index) => {
-                const docItem = document.createElement('div');
-                docItem.className = 'doc-item';
-                docItem.innerHTML = `
-                    <div class="doc-fields">
-                        <div class="doc-field">
-                            <input type="text" placeholder="Название документа" value="${doc.title}" data-index="${index}" data-field="title">
-                        </div>
-                        <div class="doc-field">
-                            <input type="text" placeholder="URL документа (PDF)" value="${doc.url}" data-index="${index}" data-field="url">
-                        </div>
-                    </div>
-                    <button type="button" class="doc-remove" data-index="${index}">×</button>
-                `;
-                docsContainer.appendChild(docItem);
-            });
-            
-            docsContainer.querySelectorAll('.doc-remove').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    removeDoc(index);
-                });
-            });
-        }
-
-        function addDoc() {
-            const docs = getDocsData();
-            docs.push({ title: '', url: '' });
-            renderDocs(docs);
-        }
-
-        function removeDoc(index) {
-            const docs = getDocsData();
-            docs.splice(index, 1);
-            renderDocs(docs);
-        }
-
-        function getDocsData() {
-            const docs = [];
-            const titleInputs = docsContainer.querySelectorAll('input[data-field="title"]');
-            
-            titleInputs.forEach(input => {
-                const index = parseInt(input.getAttribute('data-index'));
-                const title = input.value;
-                const urlInput = docsContainer.querySelector(`input[data-field="url"][data-index="${index}"]`);
-                const url = urlInput ? urlInput.value : '';
-                
-                if (title || url) {
-                    docs.push({ title, url });
-                }
-            });
-            
-            return docs;
-        }
-
-        // Вложения
+        // Вложения (теперь первое)
         function renderAttachments(attachments) {
             attachmentsContainer.innerHTML = '';
             
@@ -1213,6 +1240,65 @@ textarea{
             });
             
             return attachments;
+        }
+
+        // Документы (теперь второе)
+        function renderDocs(docs) {
+            docsContainer.innerHTML = '';
+            
+            docs.forEach((doc, index) => {
+                const docItem = document.createElement('div');
+                docItem.className = 'doc-item';
+                docItem.innerHTML = `
+                    <div class="doc-fields">
+                        <div class="doc-field">
+                            <input type="text" placeholder="Название документа" value="${doc.title}" data-index="${index}" data-field="title">
+                        </div>
+                        <div class="doc-field">
+                            <input type="text" placeholder="URL документа (PDF)" value="${doc.url}" data-index="${index}" data-field="url">
+                        </div>
+                    </div>
+                    <button type="button" class="doc-remove" data-index="${index}">×</button>
+                `;
+                docsContainer.appendChild(docItem);
+            });
+            
+            docsContainer.querySelectorAll('.doc-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeDoc(index);
+                });
+            });
+        }
+
+        function addDoc() {
+            const docs = getDocsData();
+            docs.push({ title: '', url: '' });
+            renderDocs(docs);
+        }
+
+        function removeDoc(index) {
+            const docs = getDocsData();
+            docs.splice(index, 1);
+            renderDocs(docs);
+        }
+
+        function getDocsData() {
+            const docs = [];
+            const titleInputs = docsContainer.querySelectorAll('input[data-field="title"]');
+            
+            titleInputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const title = input.value;
+                const urlInput = docsContainer.querySelector(`input[data-field="url"][data-index="${index}"]`);
+                const url = urlInput ? urlInput.value : '';
+                
+                if (title || url) {
+                    docs.push({ title, url });
+                }
+            });
+            
+            return docs;
         }
 
         // Обновление JSON вывода
